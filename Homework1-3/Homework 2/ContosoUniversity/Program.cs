@@ -19,7 +19,6 @@ namespace ContosoUniversity
             var host = CreateHostBuilder(args).Build();
 
             CreateDbIfNotExists(host);
-            // tere ueusti
             host.Run();
         }
         private static void CreateDbIfNotExists(IHost host)
