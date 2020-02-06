@@ -19,6 +19,7 @@ namespace ContosoUniversity
             var host = CreateHostBuilder(args).Build();
 
             CreateDbIfNotExists(host);
+            //tere
 
             host.Run();
         }
