@@ -1,29 +1,74 @@
-﻿using System;
+﻿using ContosoUniversity.Data;
+using ContosoUniversity.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using ContosoUniversity.Data;
-using ContosoUniversity.Models;
 
-namespace ContosoUniversity
+namespace ContosoUniversity.Pages.Students
 {
     public class IndexModel : PageModel
     {
-        private readonly ContosoUniversity.Data.SchoolContext _context;
+        private readonly SchoolContext _context;
 
-        public IndexModel(ContosoUniversity.Data.SchoolContext context)
+        public IndexModel(SchoolContext context)
         {
             _context = context;
         }
 
-        public IList<Student> Student { get;set; }
+        //The preceding code:
+        //Adds properties to contain the sorting parameters.
+        //Changes the name of the Student property to Students.
+        //Replaces the code in the OnGetAsync method.
 
-        public async Task OnGetAsync()
+        public string NameSort { get; set; }
+        public string DateSort { get; set; }
+        public string CurrentFilter { get; set; }
+        public string CurrentSort { get; set; }
+
+        public IList<Student> Students { get; set; }
+
+        public async Task OnGetAsync(string sortOrder, string searchString)
         {
-            Student = await _context.Student.ToListAsync();
+            NameSort = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            DateSort = sortOrder == "Date" ? "date_desc" : "Date";
+            CurrentFilter = searchString;
+
+            //The preceding code:
+            //Adds the searchString parameter to the OnGetAsync method, and saves the parameter value in the CurrentFilter property.
+            //The search string value is received from a text box that's added in the next section.
+            //Adds to the LINQ statement a Where clause. 
+            //The Where clause selects only students whose first name or last name contains the search string.
+            //The LINQ statement is executed only if there's a value to search for.
+
+            IQueryable<Student> studentsIQ = from s in _context.Students
+                                             select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                studentsIQ = studentsIQ.Where(s => s.LastName.Contains(searchString)
+                                       || s.FirstMidName.Contains(searchString));
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    studentsIQ = studentsIQ.OrderByDescending(s => s.LastName);
+                    break;
+                case "Date":
+                    studentsIQ = studentsIQ.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "date_desc":
+                    studentsIQ = studentsIQ.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    studentsIQ = studentsIQ.OrderBy(s => s.LastName);
+                    break;
+            }
+
+            Students = await studentsIQ.AsNoTracking().ToListAsync();
         }
     }
 }
