@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ContosoUniversity.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ContosoUniversity.Data;
-using ContosoUniversity.Models;
+using System;
+using System.Threading.Tasks;
 
-namespace ContosoUniversity
+//The instructor edit code must handle the following scenarios:
+//If the user clears the office assignment, delete the OfficeAssignment entity.
+//If the user enters an office assignment and it was empty, create a new OfficeAssignment entity.
+//If the user changes the office assignment, update the OfficeAssignment entity.
+
+//Gets the current Instructor entity from the database using eager loading for the OfficeAssignment, CourseAssignment, and CourseAssignment.Course navigation properties.
+//Updates the retrieved Instructor entity with values from the model binder.TryUpdateModel prevents overposting.
+//If the office location is blank, sets Instructor.OfficeAssignment to null. When Instructor.OfficeAssignment is null, the related row in the OfficeAssignment table is deleted.
+//Calls PopulateAssignedCourseData in OnGetAsync to provide information for the checkboxes using the AssignedCourseData view model class.
+//Calls UpdateInstructorCourses in OnPostAsync to apply information from the checkboxes to the Instructor entity being edited.
+//Calls PopulateAssignedCourseData and UpdateInstructorCourses in OnPostAsync if TryUpdateModel fails.These method calls restore the assigned course data entered on the page when it is redisplayed with an error message.
+
+namespace ContosoUniversity.Pages.Instructors
 {
-    public class EditModel : PageModel
+    public class EditModel : InstructorCoursesPageModel
     {
         private readonly ContosoUniversity.Data.SchoolContext _context;
 
@@ -30,48 +37,56 @@ namespace ContosoUniversity
                 return NotFound();
             }
 
-            Instructor = await _context.Instructors.FirstOrDefaultAsync(m => m.ID == id);
+            Instructor = await _context.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Include(i => i.CourseAssignments).ThenInclude(i => i.Course)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (Instructor == null)
             {
                 return NotFound();
             }
+            PopulateAssignedCourseData(_context, Instructor);
             return Page();
         }
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCourses)
         {
-            if (!ModelState.IsValid)
+            if (id == null)
             {
-                return Page();
+                return NotFound();
             }
 
-            _context.Attach(Instructor).State = EntityState.Modified;
+            var instructorToUpdate = await _context.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Include(i => i.CourseAssignments)
+                    .ThenInclude(i => i.Course)
+                .FirstOrDefaultAsync(s => s.ID == id);
 
-            try
+            if (instructorToUpdate == null)
             {
+                return NotFound();
+            }
+
+            if (await TryUpdateModelAsync<Instructor>(
+                instructorToUpdate,
+                "Instructor",
+                i => i.FirstMidName, i => i.LastName,
+                i => i.HireDate, i => i.OfficeAssignment))
+            {
+                if (String.IsNullOrWhiteSpace(
+                    instructorToUpdate.OfficeAssignment?.Location))
+                {
+                    instructorToUpdate.OfficeAssignment = null;
+                }
+                UpdateInstructorCourses(_context, selectedCourses, instructorToUpdate);
                 await _context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!InstructorExists(Instructor.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToPage("./Index");
-        }
-
-        private bool InstructorExists(int id)
-        {
-            return _context.Instructors.Any(e => e.ID == id);
+            UpdateInstructorCourses(_context, selectedCourses, instructorToUpdate);
+            PopulateAssignedCourseData(_context, instructorToUpdate);
+            return Page();
         }
     }
 }
