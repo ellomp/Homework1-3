@@ -20,9 +20,36 @@ namespace ContosoUniversity.Controllers
         }
 
         // GET: Students
-        public async Task<IActionResult> Index()
+        //This code receives a sortOrder parameter from the query string in the URL. 
+        //The query string value is provided by ASP.NET Core MVC as a parameter to the action method. 
+        //The parameter will be a string that's either "Name" or "Date", optionally followed by an 
+        //underscore and the string "desc" to specify descending order. The default sort order is ascending.
+
+        //The first time the Index page is requested, there's no query string. 
+        //The students are displayed in ascending order by last name, which is the default as 
+        //established by the fall-through case in the switch statement.
+        public async Task<IActionResult> Index(string sortOrder)
         {
-            return View(await _context.Students.ToListAsync());
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            var students = from s in _context.Students
+                           select s;
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    students = students.OrderByDescending(s => s.LastName);
+                    break;
+                case "Date":
+                    students = students.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "date_desc":
+                    students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    students = students.OrderBy(s => s.LastName);
+                    break;
+            }
+            return View(await students.AsNoTracking().ToListAsync());
         }
 
         // GET: Students/Details/5
