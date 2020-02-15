@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorPagesMovie", "Homework 1\RazorPagesMovie.csproj", "{EC32B1D4-B2B6-49EC-8AEB-7AE1524E663F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContosoUniversity", "Homework 2\ContosoUniversity\ContosoUniversity.csproj", "{878EE98E-B154-4A3D-9D56-F0657E75698C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContosoUniversity(razor)", "Homework 2\ContosoUniversity\ContosoUniversity(razor).csproj", "{878EE98E-B154-4A3D-9D56-F0657E75698C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContosoUniversity", "ContosoUniversity\ContosoUniversity.csproj", "{66755E76-0823-420F-8FC9-0BEAAFF93D3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{878EE98E-B154-4A3D-9D56-F0657E75698C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{878EE98E-B154-4A3D-9D56-F0657E75698C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{878EE98E-B154-4A3D-9D56-F0657E75698C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66755E76-0823-420F-8FC9-0BEAAFF93D3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66755E76-0823-420F-8FC9-0BEAAFF93D3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66755E76-0823-420F-8FC9-0BEAAFF93D3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66755E76-0823-420F-8FC9-0BEAAFF93D3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
