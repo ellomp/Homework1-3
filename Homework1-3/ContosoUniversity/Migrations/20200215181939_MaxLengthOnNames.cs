@@ -15,7 +15,7 @@ namespace ContosoUniversity.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "FirstMidName",
+                name: "FirstName",
                 table: "Student",
                 maxLength: 50,
                 nullable: true,
@@ -34,7 +34,7 @@ namespace ContosoUniversity.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "FirstMidName",
+                name: "FirstName",
                 table: "Student",
                 nullable: true,
                 oldClrType: typeof(string),
